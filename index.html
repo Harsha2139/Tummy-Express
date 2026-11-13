@@ -1,1 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tummy Express | Smart Delivery Planner</title>
+  <meta name="description" content="Plan food deliveries on real maps and compare Brute Force, Divide &amp; Conquer, Dynamic Programming and Greedy algorithms.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
 
+  <header class="nav">
+    <a class="logo" href="#top">🛵 <b>Tummy</b><span>Express</span></a>
+    <nav>
+      <a href="#problem">Problem</a>
+      <a href="#planner">Planner</a>
+      <a href="#results" id="navResults" class="disabled">Results</a>
+      <a href="#compare" id="navCompare" class="disabled">Compare</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light and dark theme" title="Toggle theme">🌙</button>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <span class="pill">⚡ Real maps · Real roads · Real algorithms</span>
+        <h1>Plan every delivery <span class="grad">like a pro.</span></h1>
+        <p class="lead">Type real places. Tummy Express finds who should carry each order, the cheapest item, the shortest route and how greedy shortcuts compare, all on live OpenStreetMap roads.</p>
+        <div class="cta">
+          <a class="btn primary" href="#planner">Plan a delivery →</a>
+          <a class="btn ghost" href="#problem">How it works</a>
+        </div>
+        <div class="hero-stats">
+          <div><b data-count="4">0</b><span>Algorithms</span></div>
+          <div><b data-count="25">0</b><span>km/h ETA model</span></div>
+          <div><b data-count="100">0</b><span>% real roads</span></div>
+        </div>
+      </div>
+      <div class="road" aria-hidden="true">
+        <span class="rider-anim">🛵</span>
+        <span class="house h1">🏠</span><span class="house h2">🏢</span><span class="house h3">🏠</span>
+      </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section id="problem" class="section">
+      <div class="section-head reveal">
+        <span class="eyebrow">The problem</span>
+        <h2>One kitchen. Many hungry customers.</h2>
+        <p>A restaurant has several riders waiting at different places and several orders to send out. Every wrong choice costs kilometres, minutes and money.</p>
+      </div>
+      <div class="cards3">
+        <article class="card glass reveal"><div class="ic">🎯</div><h3>The problem</h3><p>Match riders to orders, find the cheapest dish on the menu, and design the shortest drop route through every customer.</p></article>
+        <article class="card glass reveal"><div class="ic">💡</div><h3>Why it matters</h3><p>Delivery apps make millions of these decisions daily. A smarter algorithm saves fuel, time and customer patience.</p></article>
+        <article class="card glass reveal"><div class="ic">🧮</div><h3>What it computes</h3><p>Road distance in km from OpenStreetMap, ETA at 25 km/h, step counts and complexity for every approach.</p></article>
+      </div>
+      <div class="algo-strip reveal">
+        <div><span class="chip c-brute">Brute Force</span><p>Try every rider to order assignment</p></div>
+        <div><span class="chip c-dc">Divide &amp; Conquer</span><p>Split the menu, find the cheapest</p></div>
+        <div><span class="chip c-dp">Dynamic Programming</span><p>Held–Karp shortest delivery route</p></div>
+        <div><span class="chip c-greedy">Greedy</span><p>Nearest free rider for each order</p></div>
+      </div>
+    </section>
+
+    <!-- PLANNER -->
+    <section id="planner" class="section">
+      <div class="section-head reveal">
+        <span class="eyebrow">Planner</span>
+        <h2>Tell us where everyone is</h2>
+        <p>Use place names, addresses or coordinates like <code>13.0827, 80.2707</code>.</p>
+      </div>
+
+      <form id="plannerForm" class="card glass form reveal" novalidate>
+        <div class="form-top">
+          <div class="field">
+            <label for="city">City</label>
+            <input id="city" placeholder="e.g. Chennai, India" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="restName">Restaurant name</label>
+            <input id="restName" placeholder="e.g. Tummy Express Kitchen" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="restPlace">Restaurant location</label>
+            <input id="restPlace" placeholder="e.g. T Nagar" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-head">
+            <h3>🛵 Riders <small id="riderCount"></small></h3>
+            <button type="button" class="btn small ghost" id="addRider">+ Add rider</button>
+          </div>
+          <div id="riderList" class="list"></div>
+        </div>
+
+        <div class="group">
+          <div class="group-head">
+            <h3>📦 Orders <small id="orderCount"></small></h3>
+            <button type="button" class="btn small ghost" id="addOrder">+ Add order</button>
+          </div>
+          <div id="orderList" class="list"></div>
+        </div>
+
+        <div id="formError" class="error" role="alert" hidden></div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary big" id="planBtn">🚀 Plan my delivery</button>
+          <button type="button" class="btn ghost" id="sampleBtn">✨ Fill sample (Chennai)</button>
+          <button type="button" class="btn ghost" id="clearBtn">Reset</button>
+        </div>
+        <p class="hint">Place search allows about one request per second, so planning takes a few seconds. Needs an internet connection.</p>
+      </form>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" class="section" hidden>
+      <div class="section-head reveal">
+        <span class="eyebrow">Results</span>
+        <h2>Your delivery plan</h2>
+        <p id="notice" class="notice" hidden></p>
+      </div>
+
+      <div id="kpis" class="kpis"></div>
+
+      <div class="tabs" role="tablist" id="tabs">
+        <button role="tab" class="tab active" data-tab="brute"><span>🧩</span> Brute Force</button>
+        <button role="tab" class="tab" data-tab="dc"><span>✂️</span> Divide &amp; Conquer</button>
+        <button role="tab" class="tab" data-tab="dp"><span>🧠</span> Dynamic Programming</button>
+        <button role="tab" class="tab" data-tab="greedy"><span>⚡</span> Greedy</button>
+      </div>
+
+      <div class="workspace">
+        <div class="panel card glass" id="panel" role="tabpanel"></div>
+        <div class="mapwrap card glass">
+          <div id="map" aria-label="Delivery map"></div>
+          <div class="legend"><span>🍔 Restaurant</span><span>🛵 Rider</span><span>🏠 Customer</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section id="compare" class="section" hidden>
+      <div class="section-head reveal">
+        <span class="eyebrow">Side by side</span>
+        <h2>Four approaches compared</h2>
+        <p>Step counts are measured from this run. Bars use a log scale so small and huge values stay readable.</p>
+      </div>
+      <div class="card glass reveal">
+        <div id="bars" class="bars"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Approach</th><th>Solves</th><th>Time</th><th>Space</th><th>Steps</th><th>Runtime</th><th>Result</th></tr></thead>
+            <tbody id="cmpBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Built with Leaflet, OpenStreetMap, Nominatim and OSRM. Map data © OpenStreetMap contributors.</p>
+    <p>Tummy Express · Algorithm design assignment</p>
+  </footer>
+
+  <div id="loader" class="loader" hidden>
+    <div class="loader-box">
+      <div class="spin">🛵</div>
+      <h3 id="loaderTitle">Planning…</h3>
+      <p id="loaderMsg">Warming up the engines</p>
+      <div class="progress"><i id="loaderBar"></i></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
